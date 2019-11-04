@@ -14,6 +14,9 @@ class Client:
         self.RunServer.daemon = True
         self.RunServer.start()
         print("> Webserver started.")
+        self.Plugins = []
+        self.loadPlugins()
+        print("> Plugins started.")
         self.RunSocket = Thread(target=self.createSocket)
         self.RunSocket.daemon = True
         self.RunSocket.start()
@@ -25,7 +28,7 @@ class Client:
             xSock.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1) 
             xSock.bind((Config.CLIENT_SERVERIP, Config.CLIENT_SERVERPORT)) 
             while True: 
-                xSock.listen(4) 
+                xSock.listen(1) 
                 (conn, (ip, port)) = xSock.accept()
                 thread = Thread(target=self.addClient, args=(conn,))
                 thread.start() 
@@ -36,8 +39,9 @@ class Client:
             pass
 
     def parsePlugins(self, packet, direction, sock):
-        for pname in glob('plugins/*.py'):
-            exec(open(pname).read(), globals())
+        self.Plugins = []
+        for p in self.Plugins:
+            exec(p, globals())
             data = plugin(self, packet, direction, sock)
             if data:
                 packet = data
@@ -68,6 +72,10 @@ class Client:
         trim = uid.index('_')
         return uid[0:trim]
 
+    def loadPlugins(self):
+        for pname in glob('plugins/*.py'):
+            self.Plugins.append(open(pname).read())
+
     def addClient(self, conn):
         socks = [[], []]
         socks[0] = socket(AF_INET, SOCK_STREAM, SOL_TCP)
@@ -79,22 +87,25 @@ class Client:
                 for sock in allSocks:
                     recv = ""
                     while recv[-1:] != chr(0):
-                        recv += sock.recv(2048).decode('utf8')
+                        recv += sock.recv(4096).decode('utf-8', 'ignore')
                         if len(recv) <= 1:
                             break
                     if recv:
                         for packet in recv.split('\x00'):
-                            data = self.xml2Array(packet)
-                            if data:
-                                dataInfo = [1, 'fromxat', 'RECV'] if sock == socks[0] else [0, 'toxat', 'SENT']
-                                data = self.parsePlugins(data, dataInfo[1], conn)
-                                toBeSend = self.buildPacket(data['name'], data)
-                                if data['name'] == 'policy-file-request':
-                                    socks[1].send(Config.CROSSDOMAIN.encode() + b'\x00')
-                                elif data['name'] != 'HIDDEN':
-                                    print('[' + dataInfo[2] + ']: ' + toBeSend.decode('utf-8'))
-                                    socks[dataInfo[0]].send(toBeSend)
+                            if '<f ' in packet:
+                                dataInfo = 1 if sock == socks[0] else 0
+                                socks[dataInfo].send((packet + '\x00').encode())
+                            else:
+                                data = self.xml2Array(packet)
+                                if data:
+                                    dataInfo = [1, 'fromxat', 'RECV'] if sock == socks[0] else [0, 'toxat', 'SENT']
+                                    data = self.parsePlugins(data, dataInfo[1], conn)
+                                    toBeSend = self.buildPacket(data['name'], data)
+                                    if data['name'] == 'policy-file-request':
+                                        socks[1].send(Config.CROSSDOMAIN.encode() + b'\x00')
+                                    elif data['name'] != 'HIDDEN':
+                                        print('[' + dataInfo[2] + ']: ' + toBeSend.decode('utf-8'))
+                                        socks[dataInfo[0]].send(toBeSend)
         except:
-            socks[0].close()
-            socks[1].close()
+            pass
         
