@@ -2,7 +2,7 @@
 
 * It's wrriten for Python 3.x, actually I've made it using Python 3.8.
 * Maybe later I should release the HTML5's version.
-*All settings are located on classes/config.py
+* All settings are located on **classes/config.py**
 
 # Commands:
 * !chatid **[CHAT NAME]**
