@@ -13,6 +13,7 @@
 * !price **[POWER NAME]**
 * !reg **[XAT ID]**
 * !info
+* !reload
 * !latest
 
 # Plugins:
@@ -33,7 +34,7 @@
 5. This is all, just don't bother me anymore.
 
 # Version:
-* 1.2 stable
+* 1.3 stable
 
 # Credits: 
 * xLaming (obvious, im da best)
