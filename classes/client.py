@@ -94,8 +94,7 @@ class Client:
                                 elif data['name'] != 'HIDDEN':
                                     print('[' + dataInfo[2] + ']: ' + toBeSend.decode('utf-8'))
                                     socks[dataInfo[0]].send(toBeSend)
-        except Exception as e:
-            print(e)
+        except:
             socks[0].close()
             socks[1].close()
         
