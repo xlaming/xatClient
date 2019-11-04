@@ -39,7 +39,6 @@ class Client:
             pass
 
     def parsePlugins(self, packet, direction, sock):
-        self.Plugins = []
         for p in self.Plugins:
             exec(p, globals())
             data = plugin(self, packet, direction, sock)
@@ -73,6 +72,7 @@ class Client:
         return uid[0:trim]
 
     def loadPlugins(self):
+        self.Plugins = []
         for pname in glob('plugins/*.py'):
             self.Plugins.append(open(pname).read())
 
@@ -87,7 +87,7 @@ class Client:
                 for sock in allSocks:
                     recv = ""
                     while recv[-1:] != chr(0):
-                        recv += sock.recv(4096).decode('utf-8', 'ignore')
+                        recv += sock.recv(1204).decode('utf-8', 'ignore')
                         if len(recv) <= 1:
                             break
                     if recv:
