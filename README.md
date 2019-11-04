@@ -12,6 +12,12 @@
 * !info
 * !latest
 
+# Instalation:
+1. Install "**Redirector**", it's an extension for [Chrome](https://chrome.google.com/webstore/detail/redirector/ocgpenflpmgnfapjedencafcfakcekcd)/[Firefox](https://addons.mozilla.org/firefox/addon/redirector/) etc...
+2. Import the rules from "**Redirector.json**"
+3. Run "**run.py**" with Python 3.x
+4. This is all, just don't bother me anymore.
+
 # Version:
 * 1.0 stable
 
