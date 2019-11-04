@@ -1,7 +1,8 @@
 # xatClient for FLASH's xat:
 
-* It's wrriten for Python 3.x, actually I've made it using Python 3.8.
-* Maybe later I should release the HTML5's version.
+* I have made it using Python 3.8, I don't know if it work in other versions, but anyway it should be atleast 3.x obvious.
+* You should install the module **requests** otherside it won't work.
+* Maybe later I will create the HTML5's version.
 * All settings are located on **classes/config.py**
 
 # Commands:
@@ -12,11 +13,22 @@
 * !info
 * !latest
 
+# Plugins:
+* **commands.py**
+  * Handler for all commands.
+* **connected.py**
+  * Just show a message when you connect to xat.
+* **noclicks.py**
+  * Disable your clicks on other people.
+* **nofollow.py**
+  * Enable NoFollow when someone click you.
+  
 # Instalation:
 1. Install "**Redirector**", it's an extension for [Chrome](https://chrome.google.com/webstore/detail/redirector/ocgpenflpmgnfapjedencafcfakcekcd)/[Firefox](https://addons.mozilla.org/firefox/addon/redirector/) etc...
 2. Import the rules from "**Redirector.json**"
-3. Run "**run.py**" with Python 3.x
-4. This is all, just don't bother me anymore.
+3. Install the module **requests** install it using **pip3 install requests** on CMD or Terminal
+4. Run "**run.py**" using Python
+5. This is all, just don't bother me anymore.
 
 # Version:
 * 1.0 stable
