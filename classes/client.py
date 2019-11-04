@@ -114,7 +114,6 @@ class Client:
                                     elif data['name'] != 'HIDDEN':
                                         nicePacket = toBeSend.decode('utf-8').encode('cp850','replace').decode('cp850')
                                         print('[' + dataInfo[2] + ']: ', nicePacket)
-                                        self.Logger('packets', nicePacket)
                                         socks[dataInfo[0]].send(toBeSend)
                 
         except Exception as e:
