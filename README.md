@@ -32,7 +32,7 @@
 5. This is all, just don't bother me anymore.
 
 # Version:
-* 1.0 stable
+* 1.1 stable
 
 # Credits: 
 * xLaming (obvious, im da best)
