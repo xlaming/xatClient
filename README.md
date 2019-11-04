@@ -17,3 +17,6 @@
 
 # Credits: 
 * xLaming (obvious, im da best)
+
+# Note:
+* I won't help you, don't ask me help **YOU WILL BE IGNORED**
