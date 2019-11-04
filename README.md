@@ -1,5 +1,6 @@
 # xatClient for FLASH's xat:
 
+* **IF YOU WANT, YOU CAN USE THIS VERSION COMPILED IN .EXE (32 BITS) [CLICK TO DOWNLOAD](https://github.com/xLaming/xatClient/releases/latest)**
 * I have made it using Python 3.8, I don't know if it work in other versions, but anyway it should be atleast 3.x obvious.
 * You can't log in using the client, it doesn't seem to be working fine on login page.
 * You should install the module **requests** otherside it won't work.
