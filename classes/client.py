@@ -82,30 +82,30 @@ class Client:
         socks[0].connect((Config.XAT_IP, Config.XAT_PORT))
         socks[1] = conn
         try:
-            while True:
-                allSocks,_,_ = select(socks, [], []) 
-                for sock in allSocks:
-                    recv = ""
-                    while recv[-1:] != chr(0):
-                        recv += sock.recv(1204).decode('utf-8', 'ignore')
-                        if len(recv) <= 1:
-                            break
-                    if recv:
-                        for packet in recv.split('\x00'):
-                            if '<f ' in packet:
-                                dataInfo = 1 if sock == socks[0] else 0
-                                socks[dataInfo].send((packet + '\x00').encode())
-                            else:
-                                data = self.xml2Array(packet)
-                                if data:
-                                    dataInfo = [1, 'fromxat', 'RECV'] if sock == socks[0] else [0, 'toxat', 'SENT']
-                                    data = self.parsePlugins(data, dataInfo[1], conn)
-                                    toBeSend = self.buildPacket(data['name'], data)
-                                    if data['name'] == 'policy-file-request':
-                                        socks[1].send(Config.CROSSDOMAIN.encode() + b'\x00')
-                                    elif data['name'] != 'HIDDEN':
-                                        print('[' + dataInfo[2] + ']: ' + toBeSend.decode('utf-8'))
-                                        socks[dataInfo[0]].send(toBeSend)
-        except:
-            pass
-        
+        while True:
+            allSocks,_,_ = select(socks, [], []) 
+            for sock in allSocks:
+                recv = ""
+                while recv[-1:] != chr(0):
+                    recv += sock.recv(1204).decode('utf-8', 'ignore')
+                    if len(recv) <= 1:
+                        break
+                if recv:
+                    for packet in recv.split('\x00'):
+                        if '<f ' in packet:
+                            dataInfo = 1 if sock == socks[0] else 0
+                            socks[dataInfo].send((packet + '\x00').encode())
+                        else:
+                            data = self.xml2Array(packet)
+                            if data:
+                                dataInfo = [1, 'fromxat', 'RECV'] if sock == socks[0] else [0, 'toxat', 'SENT']
+                                data = self.parsePlugins(data, dataInfo[1], conn)
+                                toBeSend = self.buildPacket(data['name'], data)
+                                if data['name'] == 'policy-file-request':
+                                    socks[1].send(Config.CROSSDOMAIN.encode() + b'\x00')
+                                elif data['name'] != 'HIDDEN':
+                                    print('[' + dataInfo[2] + ']: ' + toBeSend.decode('utf-8'))
+                                    socks[dataInfo[0]].send(toBeSend)
+        except Exception as e:
+            if 'ConnectionAbortedError' not in e:
+                print('Error:', e)
