@@ -112,8 +112,7 @@ class Client:
                                     if data['name'] == 'policy-file-request':
                                         socks[1].send(Config.CROSSDOMAIN.encode() + b'\x00')
                                     elif data['name'] != 'HIDDEN':
-                                        nicePacket = toBeSend.decode('utf-8').encode('cp850','replace').decode('cp850')
-                                        print('[' + dataInfo[2] + ']: ', nicePacket)
+                                        print('[' + dataInfo[2] + ']: ', toBeSend.decode('utf-8', 'ignore'))
                                         socks[dataInfo[0]].send(toBeSend)
                 
         except Exception as e:
