@@ -1,3 +1,4 @@
+from os import path
 from socket import *
 from glob import glob
 from select import select
@@ -75,6 +76,12 @@ class Client:
         self.Plugins = []
         for pname in glob('plugins/*.py'):
             self.Plugins.append(open(pname).read())
+            
+    def Logger(self, file, text):
+        if path.exists('logs/' + file + '.log'):
+            logs = open('logs/' + file + '.log', 'a+')
+            logs.write(text + "\n")
+            logs.close()
 
     def addClient(self, conn):
         socks = [[], []]
@@ -82,7 +89,7 @@ class Client:
         socks[0].connect((Config.XAT_IP, Config.XAT_PORT))
         socks[1] = conn
         try:
-            logs = open('logs/packets.log', 'a+')
+            
             while True:
                 allSocks,_,_ = select(socks, [], []) 
                 for sock in allSocks:
@@ -107,12 +114,10 @@ class Client:
                                     elif data['name'] != 'HIDDEN':
                                         nicePacket = toBeSend.decode('utf-8').encode('cp850','replace').decode('cp850')
                                         print('[' + dataInfo[2] + ']: ', nicePacket)
-                                        logs.write(nicePacket + "\n")
+                                        self.Logger('packets', nicePacket)
                                         socks[dataInfo[0]].send(toBeSend)
-            logs.close()    
+                
         except Exception as e:
             error = str(e)
             if not 'ConnectionAbortedError' in error and not '10053' in error:
-                logs = open('logs/errors.log', 'a+')
-                logs.write(error + "\n")
-                logs.close()
+                 self.Logger('errors', error)
