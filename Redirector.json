@@ -1,0 +1,23 @@
+{
+    "createdBy": "Redirector v3.2",
+    "createdAt": "2019-11-04T08:00:39.930Z",
+    "redirects": [
+        {
+            "description": "xatClient by xLaming",
+            "exampleUrl": "http://xat.com/web_gear/chat/ip2.php",
+            "exampleResult": "http://127.0.0.1:11111/ip2.php",
+            "error": null,
+            "includePattern": "https?:\\/\\/xat\\.com\\/web_gear\\/chat\\/ip2\\.php",
+            "excludePattern": "",
+            "patternDesc": "",
+            "redirectUrl": "http://127.0.0.1:11111/ip2.php",
+            "patternType": "R",
+            "processMatches": "noProcessing",
+            "disabled": false,
+            "appliesTo": [
+                "main_frame",
+                "object"
+            ]
+        }
+    ]
+}
