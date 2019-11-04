@@ -6,7 +6,7 @@ def plugin(core, packet, direction, user):
         userID = core.fixUserID(packet['u'])
         args = packet['t'].split(' ', 1)
         cmd = args[0][1:].lower()
-        cc = args[0][0]
+        cc = args[0][:1]
 
         if "s" in packet:
             return
