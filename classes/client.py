@@ -112,7 +112,7 @@ class Client:
             logs.close()    
         except Exception as e:
             error = str(e)
-            if 'ConnectionAbortedError' not in error:
+            if not 'ConnectionAbortedError' in error and not '10053' in error:
                 logs = open('logs/errors.log', 'a+')
                 logs.write(error + "\n")
                 logs.close()
