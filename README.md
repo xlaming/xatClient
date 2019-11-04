@@ -32,10 +32,11 @@
 5. This is all, just don't bother me anymore.
 
 # Version:
-* 1.1 stable
+* 1.2 stable
 
 # Credits: 
 * xLaming (obvious, im da best)
 
 # Note:
 * I won't help you, don't ask me help **YOU WILL BE IGNORED**
+* If you want to report any bug, **PLEASE INCLUDE ERROR LOGS**
