@@ -34,7 +34,7 @@
 5. This is all, just don't bother me anymore.
 
 # Version:
-* 1.3 stable
+* 1.4 stable
 
 # Credits: 
 * xLaming (obvious, im da best)
