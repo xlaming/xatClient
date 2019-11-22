@@ -26,7 +26,6 @@ class Client:
     def createSocket(self):
         try:
             xSock = socket(AF_INET, SOCK_STREAM) 
-            xSock.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1) 
             xSock.bind((Config.CLIENT_SERVERIP, Config.CLIENT_SERVERPORT)) 
             while True: 
                 xSock.listen(1) 
@@ -87,9 +86,9 @@ class Client:
         socks = [[], []]
         socks[0] = socket(AF_INET, SOCK_STREAM, SOL_TCP)
         socks[0].connect((Config.XAT_IP, Config.XAT_PORT))
+        socks[0].setblocking(0)
         socks[1] = conn
         try:
-            
             while True:
                 allSocks,_,_ = select(socks, [], []) 
                 for sock in allSocks:
@@ -118,4 +117,4 @@ class Client:
         except Exception as e:
             error = str(e)
             if not 'ConnectionAbortedError' in error and not '10053' in error:
-                 self.Logger('errors', error)
+                self.Logger('errors', error)
