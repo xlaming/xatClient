@@ -1,120 +1,122 @@
-from os import path
 from socket import *
-from glob import glob
+from time import sleep
 from select import select
 from .config import Config
 from threading import Thread
-from .webserver import WebServer
-from xml.etree.ElementTree import fromstring
 
 class Client:
-    def __init__(self):
-        self.Threads = []
-        self.WebServer = WebServer()
-        self.RunServer = Thread(target=self.WebServer.start)
-        self.RunServer.daemon = True
-        self.RunServer.start()
-        print("> Webserver started.")
-        self.Plugins = []
-        self.loadPlugins()
-        print("> Plugins started.")
-        self.RunSocket = Thread(target=self.createSocket)
-        self.RunSocket.daemon = True
-        self.RunSocket.start()
-        print("> Socket started.")
-    
-    def createSocket(self):
+    def __init__(self, server, sock):
         try:
-            xSock = socket(AF_INET, SOCK_STREAM) 
-            xSock.bind((Config.CLIENT_SERVERIP, Config.CLIENT_SERVERPORT)) 
-            while True: 
-                xSock.listen(1) 
-                (conn, (ip, port)) = xSock.accept()
-                thread = Thread(target=self.addClient, args=(conn,))
-                thread.start() 
-                self.Threads.append(thread) 
-            for t in self.Threads: 
-                t.join() 
+            self.isConnected = False
+            self.server = server
+            self.socks = [[], []]
+            self.users = {}
+            self.userID = 0
+            self.rank = 0
+            self.chatID = 0
+            self.socks[1] = sock
+            self.connectToXat()
         except:
             pass
 
-    def parsePlugins(self, packet, direction, sock):
-        for p in self.Plugins:
-            exec(p, globals())
-            data = plugin(self, packet, direction, sock)
-            if data:
-                packet = data
-        return packet
+    def connectToXat(self):
+        self.socks[0] = socket(AF_INET, SOCK_STREAM, SOL_TCP)
+        self.socks[0].connect((Config.XAT_IP, Config.XAT_PORT))
+        self.startHeartBeat()
+        self.keepRunning()
 
-    def xml2Array(self, xml):
-        try:
-            returnArray = {}
-            xml = xml.strip('\0')
-            xml = fromstring(xml)
-            returnArray['name'] = xml.tag
-            for tag, attrib in xml.attrib.items():
-                returnArray[tag] = attrib
-        except: 
-            pass
-        return returnArray
-    
-    def buildPacket(self, node, packets):
-        packet = ["<" + node]
-        for (k, v) in packets.items():
-            if str(k) != 'name':
-                packet.append(str(k) + "=\"" + str(v) + "\"")
-        packet.append("/>")
-        return (' ' .join(packet) + '\x00').encode()
-
-    def fixUserID(self, uid):
-        uid += "_"
-        trim = uid.index('_')
-        return uid[0:trim]
-
-    def loadPlugins(self):
-        self.Plugins = []
-        for pname in glob('plugins/*.py'):
-            self.Plugins.append(open(pname).read())
-            
-    def Logger(self, file, text):
-        if path.exists('logs/' + file + '.log'):
-            logs = open('logs/' + file + '.log', 'a+')
-            logs.write(text + "\n")
-            logs.close()
-
-    def addClient(self, conn):
-        socks = [[], []]
-        socks[0] = socket(AF_INET, SOCK_STREAM, SOL_TCP)
-        socks[0].connect((Config.XAT_IP, Config.XAT_PORT))
-        socks[0].setblocking(0)
-        socks[1] = conn
+    def keepRunning(self):
         try:
             while True:
-                allSocks,_,_ = select(socks, [], []) 
-                for sock in allSocks:
+                socks,_,_ = select(self.socks, [], []) 
+                for sock in socks:
                     recv = ""
+                    sock.setblocking(0)
                     while recv[-1:] != chr(0):
-                        recv += sock.recv(1204).decode('utf-8', 'ignore')
-                        if len(recv) <= 1:
+                        recv += sock.recv(2048).decode('utf-8', 'ignore')
+                        if len(recv) < 1:
+                            self.killSockets()
                             break
                     if recv:
                         for packet in recv.split('\x00'):
                             if '<f ' in packet:
-                                dataInfo = 1 if sock == socks[0] else 0
-                                socks[dataInfo].send((packet + '\x00').encode())
+                                dataInfo = 1 if sock == self.socks[0] else 0
+                                self.socks[dataInfo].send(bytes(packet + '\x00', encoding='utf-8'))
                             else:
-                                data = self.xml2Array(packet)
-                                if data:
-                                    dataInfo = [1, 'fromxat', 'RECV'] if sock == socks[0] else [0, 'toxat', 'SENT']
-                                    data = self.parsePlugins(data, dataInfo[1], conn)
-                                    toBeSend = self.buildPacket(data['name'], data)
-                                    if data['name'] == 'policy-file-request':
-                                        socks[1].send(Config.CROSSDOMAIN.encode() + b'\x00')
-                                    elif data['name'] != 'HIDDEN':
-                                        print('[' + dataInfo[2] + ']: ', toBeSend.decode('utf-8', 'ignore'))
-                                        socks[dataInfo[0]].send(toBeSend)
-                
-        except Exception as e:
-            error = str(e)
-            if not 'ConnectionAbortedError' in error and not '10053' in error:
-                self.Logger('errors', error)
+                                self.parse(sock, packet)
+        except:
+            self.killSockets()
+
+    def parse(self, sock, packet):
+        data = self.server.xml2Array(packet)
+        if not data:
+            return
+        dataInfo = [1, 'fromxat', 'RECV'] if sock == self.socks[0] else [0, 'toxat', 'SENT']
+        data = self.server.parsePlugins(data, dataInfo[1], self)
+        if data['name'] == 'policy-file-request':
+            self.sendToUser(Config.CROSSDOMAIN)
+        elif data['name'] != 'HIDDEN':
+            if data['name'] == 'j2':
+                self.userID = int(data['u'])
+                self.chatID = int(data['c'])
+            elif data['name'] == 'i' and 'r' in data:
+                self.rank = int(data['r'])
+            elif data['name'] == 'l' and 'u' in data:
+                if int(data['u']) in self.users:
+                    del self.users[int(data['u'])]
+            elif data['name'] == 'done':
+                self.isConnected = True
+                self.announce('xatClient is running...')
+            elif data['name'] == 'u' and 'u' in data:
+                self.users[int(data['u'])] = {
+                    'name': data['n'],
+                    'avatar': data['a'],
+                    'home': data['h'],
+                     'rank': int(data['f']) & 7 if 'f' in data else 5,
+                    'reg': data['N'] if 'N' in data else False,
+                    'd0': data['d0'] if 'd0' in data else False,
+                    'd2': data['d2'] if 'd2' in data else False,
+                    'f': data['f'] if 'f' in data else False,
+                }
+            toBeSend = self.server.buildPacket(data['name'], data)
+            print('[' + dataInfo[2] + ' - ' + str(self.chatID) + ']: ', toBeSend)
+            self.socks[dataInfo[0]].send(bytes(toBeSend, encoding='utf-8'))
+
+    def sendToUser(self, packet):
+        print('[RECV - ' + str(self.chatID) + ']: ', packet)
+        return self.socks[1].send(bytes(packet + '\x00', encoding='utf-8'))
+
+    def sendToXat(self, packet):
+        print('[SENT - ' + str(self.chatID) + ']: ', packet)
+        return self.socks[0].send(bytes(packet + '\x00', encoding='utf-8'))
+
+    def announce(self, message):
+        self.sendToUser(self.server.buildPacket('m', {'t': message, 'u': 0}))
+
+    def killSockets(self):
+        for sock in self.socks:
+            sock.close()
+
+    def sendHeartBeat(self):
+        try:
+            sleep(10) # first time only
+            while True:
+                if self.isConnected:
+                    self.sendToXat(self.server.buildPacket('c', {'u': self.userID, 't': '/KEEPALIVE'}))
+                    sleep(50)
+        except:
+            pass
+
+
+    def startHeartBeat(self):
+        thread = Thread(target=self.sendHeartBeat)
+        thread.daemon = True
+        thread.start()
+
+    def getById(self, userid):
+        if not self.users:
+            return False
+        for uid, user in self.users.items():
+            if userid == uid:
+                return user
+        return False 

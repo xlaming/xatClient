@@ -1,6 +1,8 @@
-from classes import client
+# -*- coding: utf-8 -*-
 
-client.Client()
+from classes import server as run
+
+run.Server()
 
 while True:
     pass

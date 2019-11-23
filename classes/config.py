@@ -1,5 +1,5 @@
 class Config:
-    CMD_CHARACTER     = '!'
+    CMD_CHARACTER     = '-'
 
     CLIENT_SERVERIP   = '0.0.0.0'
     CLIENT_SERVERPORT = 10000

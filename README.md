@@ -7,19 +7,25 @@
 * All settings are located on **classes/config.py**
 
 # Commands:
-* !chatid **[CHAT NAME]**
-* !id **[XAT USERNAME]**
-* !price **[POWER NAME]**
-* !reg **[XAT ID]**
-* !info
-* !reload
-* !latest
+* -chatid **[CHAT NAME]**
+* -id **[XAT USERNAME]**
+* -price **[POWER NAME]**
+* -reg **[XAT ID]**
+* -steal **[XAT ID]**
+* -enable **[PLUGIN NAME]**
+* -disable **[PLUGIN NAME]**
+* -info
+* -reload
+* -relogin
+* -latest
 
 # Plugins:
+* **clickmsg.py**
+  * Tell you ID of who ticked you.
 * **commands.py**
   * Handler for all commands.
-* **connected.py**
-  * Just show a message when you connect to xat.
+* **guestlinks.py**
+  * Allows you to see guest links.
 * **noclicks.py**
   * Disable your clicks on other people.
 * **nofollow.py**
@@ -33,7 +39,7 @@
 5. This is all, just don't bother me anymore.
 
 # Version:
-* 1.4 stable
+* 2.0 stable
 
 # Credits: 
 * xLaming (obvious, im da best)

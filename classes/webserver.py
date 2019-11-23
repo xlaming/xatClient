@@ -12,7 +12,7 @@ class WebServer:
     def start(self):
         self.sock = socket(AF_INET, SOCK_STREAM)
         self.sock.bind((Config.WEB_SERVERIP, Config.WEB_SERVERPORT))
-        self.sock.listen(15)
+        self.sock.listen(25)
         while(True):
             usock, address = self.sock.accept()
             recv = usock.recv(4096)
